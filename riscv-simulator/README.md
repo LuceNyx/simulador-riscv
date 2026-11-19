@@ -63,6 +63,8 @@ Las direcciones de `mem` aceptan hexadecimal (`0x...`) o decimal.
 - Register-register: `add`, `sub`, `sll`, `slt`, `sltu`, `xor`, `srl`, `sra`, `or`, `and`
 - Branches: `beq`, `bne`, `blt`, `bge`, `bltu`, `bgeu`
 - Jumps: `jal`, `jalr`
+- System: `ebreak` (`0x00100073`), which halts the simulator with the PC left on
+  the breakpoint instruction.
 
 ## Decisiones y límites de esta versión
 
@@ -76,12 +78,27 @@ Las direcciones de `mem` aceptan hexadecimal (`0x...`) o decimal.
   del rango del binario. Para programas con loops, `run` también tiene un límite
   de seguridad configurable.
 - Se reportan instrucciones inválidas y accesos fuera de memoria.
-- No se implementan ELF, GDB, `ecall`, extensiones M/C ni interrupciones; el
+- No se implementan ELF, GDB, `ecall`, otras instrucciones SYSTEM, extensiones M/C ni interrupciones; el
   enunciado los presenta como ideas adicionales o no los exige.
 
-## Pruebas sugeridas por el enunciado
+## Pruebas automatizadas
 
-Probar con los binarios crudos de:
+Las pruebas compilan un ejecutable C++ pequeño que genera los programas binarios
+en el directorio temporal del sistema. Comprueban que EBREAK detenga el simulador,
+que el PC quede en la instrucción y que ECALL siga rechazándose.
+
+```bash
+cmake -S . -B build-tests
+cmake --build build-tests --config Release
+ctest --test-dir build-tests --build-config Release --output-on-failure
+```
+
+En generadores de una sola configuración, `--config Release` y
+`--build-config Release` se pueden omitir.
+
+## Pruebas manuales sugeridas por el enunciado
+
+También se puede probar con los binarios crudos de:
 1. `riscvtest.s`
 2. Quicksort
 3. Árbol simétrico
@@ -94,5 +111,5 @@ desde `0000` hasta una dirección que cubra el programa. Cargar ese `.bin` aquí
 ```text
 include/       Interfaces de memoria, decoder y simulador
 src/           Implementación y CLI
-tests/         Espacio para binarios/casos de prueba
+tests/         Pruebas automatizadas, fuentes y binarios de prueba opcionales
 ```

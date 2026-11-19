@@ -14,6 +14,18 @@ add_executable(riscv-simulator
 
 target_include_directories(riscv-simulator PRIVATE include)
 
+include(CTest)
+if(BUILD_TESTING)
+    add_executable(simulator-tests
+        tests/simulator_tests.cpp
+        src/Simulator.cpp
+        src/Memory.cpp
+        src/Decoder.cpp
+    )
+    target_include_directories(simulator-tests PRIVATE include)
+    add_test(NAME simulator-tests COMMAND simulator-tests)
+endif()
+
 if(MSVC)
     target_compile_options(riscv-simulator PRIVATE /W4)
 else()

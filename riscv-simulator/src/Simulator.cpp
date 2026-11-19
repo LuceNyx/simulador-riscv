@@ -157,6 +157,12 @@ void Simulator::execute(uint32_t instruction) {
             setReg(d.rd, oldPC + 4);
             nextPC = oldPC + static_cast<uint32_t>(d.immediate);
             break;
+        // EBREAK: stop the simulator while keeping PC on the breakpoint.
+        case 0x73:
+            if (instruction != 0x00100073u)
+                throw std::runtime_error("Instruccion SYSTEM no soportada.");
+            halted = true;
+            return;
         default:
             throw std::runtime_error("Opcode no soportado: " + std::to_string(d.opcode));
     }

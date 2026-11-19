@@ -1,5 +1,7 @@
 build/
+build-tests/
 .vscode/
 .idea/
 *.bin
+!/tests/*.bin
 *.elf

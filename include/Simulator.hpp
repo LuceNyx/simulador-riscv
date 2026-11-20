@@ -15,6 +15,7 @@ public:
     void showRegisters() const;
     void showRegister(unsigned index) const;
     void showMemory(uint32_t start, uint32_t end) const;
+    void showMemoryWords(uint32_t start, uint32_t count) const;
     void reset();
     bool isHalted() const noexcept;
     uint32_t getPC() const noexcept;

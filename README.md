@@ -41,13 +41,15 @@ En Windows, ajusta la ruta al ejecutable y al binario.
 
 | Comando | Acción |
 |---|---|
-| `step` | Ejecuta una instrucción |
+| `step [n]` | Ejecuta una instrucción o `n` instrucciones |
 | `run` | Ejecuta hasta terminar o alcanzar el límite |
 | `run 10000` | Ejecuta como máximo 10 000 instrucciones |
 | `pc` | Muestra el PC |
 | `regs` | Muestra x0–x31 |
-| `reg x5` | Muestra un registro |
+| `regs a0 sp` o `reg x5` | Muestra registros por número o alias ABI |
 | `mem 0x1000 0x101f` | Muestra un rango de memoria en bytes |
+| `memw 0x64 [n]` | Muestra `n` palabras de 32 bits en hexadecimal y decimal |
+| `break 0x20`, `delete 0x20`, `breaks` | Gestiona y lista breakpoints para `run` |
 | `reset` | Reinicia PC y registros |
 | `help` | Muestra ayuda |
 | `exit` | Termina el simulador |
@@ -83,9 +85,10 @@ Las direcciones de `mem` aceptan hexadecimal (`0x...`) o decimal.
 
 ## Pruebas automatizadas
 
-Las pruebas compilan un ejecutable C++ pequeño que genera los programas binarios
-en el directorio temporal del sistema. Comprueban que EBREAK detenga el simulador,
-que el PC quede en la instrucción y que ECALL siga rechazándose.
+Las pruebas compilan un ejecutable C++ que genera programas pequeños en el
+directorio temporal y ejecuta los binarios versionados de `programas/` y
+`pruebas/`. Verifican EBREAK y su PC, instrucciones inválidas, los ejemplos y
+`pruebas/full-test.bin`, que comprueba el conjunto RV32I y termina con `a0 = 1`.
 
 ```bash
 cmake -S . -B build-tests
@@ -96,20 +99,36 @@ ctest --test-dir build-tests --build-config Release --output-on-failure
 En generadores de una sola configuración, `--config Release` y
 `--build-config Release` se pueden omitir.
 
-## Pruebas manuales sugeridas por el enunciado
+## Comprobar los ejemplos desde la consola
 
-También se puede probar con los binarios crudos de:
-1. `riscvtest.s`
-2. Quicksort
-3. Árbol simétrico
+Los casos de `programas/` incluyen fuentes `.s` y binarios crudos:
 
-En CPUlator: compilar y cargar, abrir Memory, elegir formato `Raw`, guardar
-desde `0000` hasta una dirección que cubra el programa. Cargar ese `.bin` aquí.
+- `riscvtest`: verifica las instrucciones del ejemplo y deja 25 en `0x64`.
+- `symmetric-tree`: evalúa el árbol del enunciado y deja `a0 = 1`.
+- `quicksort`: ordena el arreglo del enunciado en `0x1000`.
+- `pruebas/full-test.bin`: comprueba el conjunto RV32I; `a0 = 1` indica que pasó.
+
+Ejecuta cada binario desde la raíz del proyecto:
+
+```powershell
+.\build-tests\Release\riscv-simulator.exe .\programas\riscvtest.bin
+```
+
+Dentro de la consola, comprueba `riscvtest` con `run` y `memw 100`; el resultado
+debe ser `0x00000019 (25)`. Para el árbol, usa `run` y `reg a0`; debe mostrar
+`0x00000001`. Para QuickSort, usa `run` y `memw 0x1000 7`; deben aparecer
+`1, 2, 3, 4, 6, 8, 9`. La ejecución termina al encontrar EBREAK.
+
+También puedes probar `step 3`, `break 0x20`, `breaks` y `delete 0x20`. `run`
+se detiene al llegar a un breakpoint. Los binarios `.elf` y `ecall` no forman
+parte del simulador de esta entrega.
 
 ## Estructura
 
 ```text
 include/       Interfaces de memoria, decoder y simulador
 src/           Implementación y CLI
-tests/         Pruebas automatizadas, fuentes y binarios de prueba opcionales
+programas/     Fuentes y binarios de los ejemplos del enunciado
+pruebas/       Pruebas automatizadas y pasos de verificación
+informe/       Informe y guion del video
 ```

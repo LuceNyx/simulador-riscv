@@ -17,12 +17,16 @@ target_include_directories(riscv-simulator PRIVATE include)
 include(CTest)
 if(BUILD_TESTING)
     add_executable(simulator-tests
-        tests/simulator_tests.cpp
+        pruebas/simulator_tests.cpp
         src/Simulator.cpp
         src/Memory.cpp
         src/Decoder.cpp
     )
     target_include_directories(simulator-tests PRIVATE include)
+    file(TO_CMAKE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" SIMULATOR_SOURCE_DIR_PATH)
+    target_compile_definitions(simulator-tests PRIVATE
+        SIMULATOR_SOURCE_DIR="${SIMULATOR_SOURCE_DIR_PATH}"
+    )
     add_test(NAME simulator-tests COMMAND simulator-tests)
 endif()
 

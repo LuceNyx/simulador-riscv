@@ -223,6 +223,20 @@ void Simulator::showMemory(uint32_t start, uint32_t end) const {
     memory.dump(start, end);
 }
 
+void Simulator::showMemoryWords(uint32_t start, uint32_t count) const {
+    if (count == 0) throw std::invalid_argument("La cantidad de palabras debe ser mayor que cero.");
+    for (uint32_t i = 0; i < count; ++i) {
+        const uint64_t address = static_cast<uint64_t>(start) + 4ull * i;
+        if (address > std::numeric_limits<uint32_t>::max())
+            throw std::out_of_range("La direccion de memoria excede 32 bits.");
+        const auto value = memory.read32(static_cast<uint32_t>(address));
+        std::cout << "Mem[0x" << std::hex << std::setw(8) << std::setfill('0')
+                  << address << "] = 0x" << std::setw(8) << value
+                  << "  (" << std::dec << value << ")\n";
+    }
+    std::cout << std::dec << std::setfill(' ');
+}
+
 void Simulator::reset() {
     pc = 0;
     regs.fill(0);

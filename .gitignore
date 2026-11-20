@@ -3,5 +3,6 @@ build-tests/
 .vscode/
 .idea/
 *.bin
-!/tests/*.bin
+!/programas/*.bin
+!/pruebas/*.bin
 *.elf
